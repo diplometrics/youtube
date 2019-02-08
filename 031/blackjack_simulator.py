@@ -4,8 +4,8 @@ import math
 import time
 
 # configuration options
-simulations = 6000000
-num_decks = 4
+simulations = 5000000 #only need to run 5m for full sample
+num_decks = 6 #standard is 6 decks
 shuffle_perc = 75
 
 def simulate(queue, batch_size):
@@ -13,11 +13,11 @@ def simulate(queue, batch_size):
 
 	def new_deck():
 		std_deck = [
-		  # 2  3  4  5  6  7  8  9  10  J   Q   K   A
-			2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11,
-			2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11,
-			2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11,
-			2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11,
+		      # 2  3  4  5  6  7  8  9  10  J   Q   K   A
+			2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11, #spades
+			2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11, #hearts
+			2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11, #clubs
+			2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11, #diamonds
 		]
 
 		# add more decks
@@ -32,15 +32,17 @@ def simulate(queue, batch_size):
 		player_cards = []
 
 		# deal initial cards
-		player_cards.append(deck.pop(0))
-		dealer_cards.append(deck.pop(0))
-		player_cards.append(deck.pop(0))
-		dealer_cards.append(deck.pop(0))
+		player_cards.append(deck.pop()) #remove the 0 to make quicker, pulls from end instead of front
+		dealer_cards.append(deck.pop()) #remove the 0 to make quicker, pulls from end instead of front
+		player_cards.append(deck.pop()) #remove the 0 to make quicker, pulls from end instead of front
+		dealer_cards.append(deck.pop()) #remove the 0 to make quicker, pulls from end instead of front
 
 		# deal player to 12 or higher
 		while sum(player_cards) < 12:
-			player_cards.append(deck.pop(0))
+			player_cards.append(deck.pop()) #remove the 0 to make quicker, pulls from end instead of front
 
+		#TODO: If Dealer/Player is dealt two aces, need to convert one from 11 to 1 to prevent bust
+		
 		# deal dealer on soft 17
 		while sum(dealer_cards) < 18:
 			exit = False
@@ -56,23 +58,29 @@ def simulate(queue, batch_size):
 			if exit:
 				break
 
-			dealer_cards.append(deck.pop(0))
+			dealer_cards.append(deck.pop()) #remove the 0 to make quicker, pulls from end instead of front
 
 		p_sum = sum(player_cards)
 		d_sum = sum(dealer_cards)
 
-		# dealer bust
-		if d_sum > 21:
-			return 1;
-		# dealer tie
-		if d_sum == p_sum:
-			return 0;
-		# dealer win
-		if d_sum > p_sum:
+		#TODO: need to check to see if dealer has blackjack - player auto loses
+		
+		#player bust
+		if p_sum > 21:
 			return -1;
-		# dealer lose
-		if d_sum < p_sum:
-			return 1
+		else:
+			# dealer bust
+			if d_sum > 21:
+				return 1;
+			# dealer tie
+			if d_sum == p_sum:
+				return 0;
+			# dealer win
+			if d_sum > p_sum:
+				return -1;
+			# dealer lose
+			if d_sum < p_sum:
+				return 1
 
 	# starting deck
 	deck = new_deck()
